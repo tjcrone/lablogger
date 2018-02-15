@@ -1,2 +1,2 @@
-# lablogger
-Logger for lab instruments
+# Lablogger
+Logger for instruments in the IRS lab.
