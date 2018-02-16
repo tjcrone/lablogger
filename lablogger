@@ -11,7 +11,7 @@ hostname=gethostname()
 
 # default device ports
 if hostname=='europa':
-  tm_port = '/dev/tty.usbserial-A100M04W'
+  tm_port = '/dev/tty.usbserial-A100M04W' # Amprobe TMD-56
 
 # define required globals as empty
 tm = []
@@ -102,7 +102,7 @@ class Device(object):
 # create requested devices
 for dev in args.device:
   if dev[0] == 'tm':
-    # create  amprobe object
+    # create  Amprobe TMD-56 object
     tm = Device()
     tm.name = 'Amprobe TMD-56'
     tm.ser = serial.Serial(baudrate=19200, parity=serial.PARITY_EVEN,
@@ -147,7 +147,6 @@ if tm:
   connect(tm)
 if mm:
   connect(mm)
-
 
 # function to check if device value is a valid float
 def check_float(value):
