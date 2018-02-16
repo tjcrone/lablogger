@@ -223,8 +223,8 @@ while running:
       time.sleep(0.05)
       tm_data = tm.ser.read(16)
       if len(tm_data) == 16 and int(tm_data[0])==62 and int(tm_data[1])==15:
-        tm_s1 = (int(tm_data[5])*256. + int(tm_data[6]))/10
-        tm_s2 = (int(tm_data[10])*256. + int(tm_data[11]))/10
+        tm_s1 = (int(tm_data[5])*256.0 + int(tm_data[6]))/10
+        tm_s2 = (int(tm_data[10])*256.0 + int(tm_data[11]))/10
 
     # get mm value
     if mm:
