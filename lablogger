@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# This program logs data from various lab instruments. See the README
-# for usage notes, or use lablogger -h to display the help information.
+# This program logs data from various IRS lab instruments. See the README file for usage
+# notes, or use lablogger -h to display the help information.
 
 # imports
 import sys, os, serial, time, argparse, signal, datetime
@@ -11,7 +11,7 @@ hostname=gethostname()
 
 # default device ports
 if hostname=='europa':
-  tm_port = '/dev/tty.usbserial-A100M04W' # Amprobe TMD-56
+  tm_port = '/dev/tty.usbserial-A100M04W'
 
 # define required globals as empty
 tm = []
@@ -102,7 +102,7 @@ class Device(object):
 # create requested devices
 for dev in args.device:
   if dev[0] == 'tm':
-    # create  Amprobe TMD-56 object
+    # create  amprobe object
     tm = Device()
     tm.name = 'Amprobe TMD-56'
     tm.ser = serial.Serial(baudrate=19200, parity=serial.PARITY_EVEN,
@@ -112,8 +112,8 @@ for dev in args.device:
     # create  multimeter serial object
     mm = Device()
     mm.name = 'multimeter'
-    mm.ser = serial.Serial(baudrate=9600, parity=serial.PARITY_NONE,
-      stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=0.25)
+    mm.ser = serial.Serial(baudrate=38400, parity=serial.PARITY_NONE,
+      stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=1.25)
     mm.ser.port = dev[1]
 
 # connector routine
@@ -147,6 +147,7 @@ if tm:
   connect(tm)
 if mm:
   connect(mm)
+
 
 # function to check if device value is a valid float
 def check_float(value):
@@ -187,6 +188,11 @@ if not args.quiet:
 f.write(header())
 f.flush()
 
+# change mm mode
+#if mm:
+#  mm.ser.write('FUNC VOLTage:DC\n')
+  #mm.ser.write('FUNC CURRent:DC\n')
+
 # loop to log data
 while running:
   # quit if requested number of samples have been collected
@@ -223,19 +229,29 @@ while running:
       time.sleep(0.05)
       tm_data = tm.ser.read(16)
       if len(tm_data) == 16 and int(tm_data[0])==62 and int(tm_data[1])==15:
-        tm_s1 = (int(tm_data[5])*256.0 + int(tm_data[6]))/10
-        tm_s2 = (int(tm_data[10])*256.0 + int(tm_data[11]))/10
-      else:
-        tm_s1 = "NaN"
-        tm_s2 = "NaN"
+        tm_s1 = (int(tm_data[5])*256. + int(tm_data[6]))/10
+        tm_s2 = (int(tm_data[10])*256. + int(tm_data[11]))/10
 
     # get mm value
     if mm:
+      #mm.ser.write('FUNC VOLT:DC\n')
+      #time.sleep(0.9)
+      #mm.ser.write('FUNC CURR:DC\n')
+      mm.ser.write('FUNC VOLT:DC\n')
       mm.ser.flushInput()
+      mm.ser.flushOutput()
+      #time.sleep(0.9)
+      mm.ser.write('*TRG\n')
+      time.sleep(0.2)
       mm.ser.flushOutput()
       mm.ser.write('FETCH?\n')
       time.sleep(0.2)
+      mm.ser.flushInput()
+      mm.ser.flushOutput()
+      time.sleep(0.9)
       mm_data = mm.ser.read(mm.ser.in_waiting).strip()
+      print(mm_data.split('\n'))
+      mm.ser.write('FUNC CURR:DC\n')
       # format mm value
       if len(mm_data)>0:
         if mm_data == 'FETCH?':
@@ -250,11 +266,13 @@ while running:
     else:
       mm_cur = 'NaN'
 
+    #print(mm_cur)
+
     # write results to screen
-    if not args.quiet:
-      sys.stdout.write('%s,%s,%s\n' % (sample_time, tm_s1, tm_s2))
-      sys.stdout.flush()
+    #if not args.quiet:
+      #sys.stdout.write('%s,%s,%s\n' % (sample_time, tm_s1, tm_s2))
+      #sys.stdout.flush()
 
     # write results to file
-    f.write('%s,%s,%s\n' % (sample_time, tm_s1, tm_s2))
-    f.flush()
+    #f.write('%s,%s,%s\n' % (sample_time, tm_s1, tm_s2))
+    #f.flush()
