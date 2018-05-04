@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# This program logs data from various IRS lab instruments. See the README file for usage
-# notes, or use lablogger -h to display the help information.
+# This program logs data from various lab instruments. See the README
+# for usage notes, or use lablogger -h to display the help information.
 
 # imports
 import sys, os, serial, time, argparse, signal, datetime
@@ -225,6 +225,9 @@ while running:
       if len(tm_data) == 16 and int(tm_data[0])==62 and int(tm_data[1])==15:
         tm_s1 = (int(tm_data[5])*256.0 + int(tm_data[6]))/10
         tm_s2 = (int(tm_data[10])*256.0 + int(tm_data[11]))/10
+      else:
+        tm_s1 = "NaN"
+        tm_s2 = "NaN"
 
     # get mm value
     if mm:
